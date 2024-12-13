@@ -3,6 +3,9 @@ function waitForAnyButtonToBeClicked(firstSelector, secondSelector) {
   return new Promise(function (resolve, reject) {
     const firstButton = document.querySelector(firstSelector);
     const secondButton = document.querySelector(secondSelector);
+    if (!secondButton || !firstButton) {
+      reject();
+    }
     if (firstButton) {
       firstButton.addEventListener('click', function () {
         resolve(firstButton);
@@ -12,8 +15,6 @@ function waitForAnyButtonToBeClicked(firstSelector, secondSelector) {
       secondButton.addEventListener('click', function () {
         resolve(secondButton);
       });
-    } else {
-      reject();
     }
   });
 }
@@ -29,22 +30,37 @@ waitForAnyButtonToBeClicked('#first-button', '#second-button')
 // 2
 function waitForPasswordsToMatch(firstSelector, secondSelector) {
   return new Promise(function (resolve, reject) {
-    const firstInput = document.querySelector(firstSelector);
-    const secondInput = document.querySelector(secondSelector);
-    const firstInputValue = firstInput.value;
-    const secondInputValue = secondInput.value;
-    if (firstInput && secondInput && firstInputValue === secondInputValue) {
-      resolve();
-    } else {
-      reject();
-    }
+    const passwordInputs = document.querySelectorAll('.password-input');
+
+    passwordInputs.forEach(function (input) {
+      input.addEventListener('input', function () {
+        const firstInput = document.querySelector(firstSelector);
+        const secondInput = document.querySelector(secondSelector);
+
+        if (!firstInput || !secondInput) {
+          reject();
+        } else {
+          const firstInputValue = firstInput.value;
+          const secondInputValue = secondInput.value;
+          const inputsMatch = firstInputValue === secondInputValue;
+
+          if (
+            inputsMatch &&
+            secondInputValue !== '' &&
+            firstInputValue !== ''
+          ) {
+            resolve();
+          }
+        }
+      });
+    });
   });
 }
 
-waitForPasswordsToMatch('#password-input', '#confirm-password-input')
+waitForPasswordsToMatch('#password-inputss', '#confirm-password-input')
   .then(function () {
     console.log('Passwords match');
   })
   .catch(function () {
-    console.log("Passwords doesn't match or are missing");
+    console.log('Passwords doesn`t match or are missing');
   });
